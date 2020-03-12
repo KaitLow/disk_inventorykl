@@ -87,8 +87,9 @@ CREATE USER diskUserkl FOR LOGIN diskUserkl;
 --grant permission to user
 ALTER ROLE db_datareader ADD MEMBER diskUserkl;
 
-
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 --Start of Week 3 Assignment 3/5/2019
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 USE [disk_inventorykl]
 GO
 
@@ -209,7 +210,7 @@ INSERT INTO [dbo].[Artist]
 		   ,('Alanis','Morisette',1)
 		   ,('Chris','Daughtry',1)
 		   ,('Black Sabbath',null,2)
-		   ,('The Cars',null,1)
+		   ,('The Cars',null,2)
 		   ,('The Eagles',null,2)
 		   ,('Patsy','Cline',1)
 		   ,('Pearl Jam',null,2)
@@ -290,3 +291,86 @@ SELECT Borrower_ID AS Borrower_Id,
 	   Returned_date AS Return_date
 FROM Disk_has_borrower
 WHERE Returned_date is null;
+
+
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--Start of Week 4 Assignment 3/12/2019 
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+--Shows the disks in the database and any associated individual artists only
+SELECT disk_name as 'Disk Name', 
+       CONVERT(VARCHAR(10), Release_date, 101) AS 'Release Date',
+	   A_first_name AS 'Artist First Name', 
+	   A_last_name AS 'Artist Last Name'
+	--SUBSTRING(A_first_name, 1, CHARINDEX(A_first_name, ' '))
+FROM Disk
+JOIN Disk_has_artist
+	ON disk.Disk_ID = Disk_has_artist.Disk_ID
+JOIN Artist
+	ON Disk_has_artist.Artist_ID = Artist.Artist_ID
+WHERE Artist_type_ID = 1
+ORDER BY A_last_name, A_first_name, Disk_name;
+GO
+
+
+--Creates a view called "View_individual_artist" that shows artists' names and not group names.
+CREATE VIEW View_individual_artist AS 
+	SELECT Artist_ID, A_first_name, A_last_name
+	FROM Artist
+	WHERE Artist_type_ID = 1;
+GO
+
+SELECT A_first_name AS 'First Name',
+       A_last_name AS 'Last Name'
+FROM View_individual_artist 
+ORDER BY A_last_name, A_first_name;
+
+
+--Shows the disks in the database and any associated group artists only.
+SELECT disk_name as 'Disk Name', CONVERT(VARCHAR(10), Release_date, 101) AS 'Release Date',
+	   A_first_name AS 'Group Name'
+FROM Disk
+JOIN Disk_has_artist 
+	ON disk.Disk_ID = Disk_has_artist.Disk_ID
+JOIN Artist
+	ON Disk_has_artist.Artist_ID = Artist.Artist_ID
+WHERE Artist.Artist_ID NOT IN (SELECT Artist_ID FROM View_individual_artist);
+
+
+--Shows which disks have been borrowed.
+SELECT B_first_name AS 'First Name', 
+       B_last_name AS 'Last Name', 
+	   disk_name AS 'Disk Name', 
+	   borrowed_date AS 'Borrowed Date',
+	   Returned_date AS 'Returned  Date'
+FROM Borrower b
+JOIN Disk_has_borrower dhb
+	ON b.Borrower_ID = dhb.Borrower_ID
+JOIN Disk d
+	ON dhb.Disk_ID = d.Disk_ID
+ORDER BY Disk_name, B_first_name, B_last_name, Borrowed_date, Returned_date;
+
+
+--Shows how many times each disk has been borrowed.
+SELECT d.Disk_ID, Disk_name, 
+	   COUNT(*) AS 'Times Borrowed'
+FROM Disk d
+JOIN Disk_has_borrower dhb
+	ON dhb.Disk_ID = d.Disk_ID
+GROUP BY d.Disk_ID, Disk_name
+--HAVING COUNT(*) > 1
+ORDER BY d.Disk_ID;
+
+
+--Shows the disks outstanding or on-loan and how has each disk
+SELECT Disk_name AS 'Disk Name', 
+       Borrowed_date AS 'Borrowed Date', 
+	   Returned_date AS 'Returned Date',
+	   B_last_name AS 'Last Name'
+FROM Disk d
+JOIN Disk_has_borrower dhb
+	ON d.Disk_ID = dhb.Disk_ID
+JOIN Borrower b
+	ON b.Borrower_ID = dhb.Borrower_ID
+WHERE Returned_date IS NULL
+ORDer BY Disk_name;
