@@ -374,3 +374,244 @@ JOIN Borrower b
 	ON b.Borrower_ID = dhb.Borrower_ID
 WHERE Returned_date IS NULL
 ORDer BY Disk_name;
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--Start of Project 5 Stored Procedures 4/9/2020
+--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-- Create Insert, Update, and Delete stored procedures for the artist table. Update procedure accepts input parameters for all columns. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+
+DROP PROCEDURE IF EXISTS sp_ins_artist
+GO
+CREATE PROCEDURE sp_ins_artist
+	@A_first_name VARCHAR(60),
+	@A_last_name VARCHAR(60) = NULL,
+	@Artist_type_ID int
+AS
+	BEGIN TRY
+		INSERT INTO [dbo].[Artist]
+				   ([A_first_name]
+				   ,[A_last_name]
+				   ,[Artist_type_ID])
+			 VALUES
+				   (@A_first_name
+				   ,@A_last_name
+				   ,@Artist_type_ID)
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_ins_artist TO diskUserkl;
+EXEC sp_ins_artist 'Cher', NULL, 1;
+EXEC sp_ins_artist 'Jared', 'Leto', 11;
+GO
+
+DROP PROCEDURE IF EXISTS sp_upd_artist
+GO
+CREATE PROCEDURE sp_upd_artist
+	@Artist_ID INT,
+	@A_first_name VARCHAR(60),
+	@A_last_name VARCHAR(60) = NULL,
+	@Artist_type_ID INT
+AS
+	BEGIN TRY
+		UPDATE [dbo].[Artist]
+		   SET [A_first_name] = @A_first_name
+			  ,[A_last_name] = @A_last_name
+			  ,[Artist_type_ID] = @Artist_type_ID
+		 WHERE Artist_ID = @Artist_ID
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_upd_artist TO diskUserkl;
+EXEC sp_ins_artist 'Cher', NULL, 2;
+EXEC sp_ins_artist 'Jared', 'Leto', 11;
+GO
+
+DROP PROCEDURE IF EXISTS sp_del_artist
+GO
+CREATE PROCEDURE sp_del_artist
+	@Artist_ID INT
+AS
+	BEGIN TRY
+		DELETE FROM [dbo].[Artist]
+		WHERE Artist_ID = @Artist_ID
+	END TRY
+		BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_del_artist TO diskUserkl;
+EXEC sp_del_artist 22;
+EXEC sp_del_artist 4;
+GO
+
+--Create Insert, Update, and Delete stored procedures for the borrower table. Update procedure accepts input parameters for all columns. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+
+DROP PROCEDURE IF EXISTS sp_ins_borrower
+GO
+CREATE PROCEDURE sp_ins_borrower
+	@B_first_name VARCHAR(60),
+	@B_last_name VARCHAR(60),
+	@B_phone_number VARCHAR(50)
+AS
+	BEGIN TRY
+		INSERT INTO [dbo].[Borrower]
+				   ([B_first_name]
+				   ,[B_last_name]
+				   ,[B_phone_number])
+			 VALUES
+				   (@B_first_name
+				   ,@B_last_name
+				   ,@B_phone_number)
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_ins_borrower TO diskUserkl;
+EXEC sp_ins_borrower  'Eeyore', 'Donkey', '2082221234';
+EXEC sp_ins_borrower  'Jared', NULL, '2082221234';
+GO
+
+DROP PROCEDURE IF EXISTS sp_upd_borrower
+GO
+CREATE PROCEDURE sp_upd_borrower
+	@Borrower_ID INT,
+	@B_first_name VARCHAR(60),
+	@B_last_name VARCHAR(60),
+	@B_phone_number VARCHAR(50)
+AS
+	BEGIN TRY
+		UPDATE [dbo].[Borrower]
+		   SET [B_first_name] = @B_first_name
+			  ,[B_last_name] = @B_last_name
+			  ,[B_phone_number] = @B_phone_number
+		 WHERE Borrower_ID = @Borrower_ID
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_upd_borrower TO diskUserkl;
+EXEC sp_upd_borrower 21, 'EeyoreXX', 'DonkeyXX', '2082221234';
+EXEC sp_upd_borrower 21, 'Eeyore', NULL, '2082221234';
+GO
+
+DROP PROCEDURE IF EXISTS sp_del_borrower
+GO
+CREATE PROCEDURE sp_del_borrower
+	@Borrower_ID INT
+AS
+	BEGIN TRY
+		DELETE FROM [dbo].[Borrower]
+			  WHERE Borrower_ID = @Borrower_ID
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_del_borrower TO diskUserkl;
+EXEC sp_del_borrower 21;
+EXEC sp_del_borrower 2;
+GO
+
+--Create Insert, Update, and Delete stored procedures for the disk table. Update procedure accepts input parameters for all columns. Insert accepts all columns as input parameters except for identity fields. Delete accepts a primary key value for delete.
+
+DROP PROCEDURE IF EXISTS sp_ins_disk
+GO
+CREATE PROCEDURE sp_ins_disk
+	@Disk_name VARCHAR(60),
+	@Release_date DATE,
+	@Status_ID INT,
+	@Genre_ID INT,
+	@Disk_type INT
+AS
+	BEGIN TRY
+		INSERT INTO [dbo].[Disk]
+				   ([Disk_name]
+				   ,[Release_date]
+				   ,[Status_ID]
+				   ,[Genre_ID]
+				   ,[Disk_type_ID])
+			 VALUES
+				   (@Disk_name
+				   ,@Release_date
+				   ,@Status_ID
+				   ,@Genre_ID
+				   ,@Disk_type)
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_ins_disk TO diskUserkl;
+EXEC sp_ins_disk 'Lightning Bolt', '2/2/2013', 4, 1, 1;
+EXEC sp_ins_disk 'Eeyore', '2/2/2011', NULL, 1, 1;
+GO
+
+DROP PROCEDURE IF EXISTS sp_upd_disk
+GO
+CREATE PROCEDURE sp_upd_disk
+	@Disk_ID INT,
+	@Disk_name VARCHAR(60),
+	@Release_date DATE,
+	@Status_ID INT,
+	@Genre_ID INT,
+	@Disk_type INT
+AS
+	BEGIN TRY
+	UPDATE [dbo].[Disk]
+	   SET [Disk_name] = @Disk_name
+		  ,[Release_date] = @Release_date
+		  ,[Status_ID] = @Status_ID
+		  ,[Genre_ID] = @Genre_ID
+		  ,[Disk_type_ID] = @Disk_type
+	 WHERE Disk_ID = @Disk_ID
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_upd_disk TO diskUserkl;
+EXEC sp_upd_disk 21,'Lightning Bolt UPDATED', '12/12/2013', 3, 1, 1;
+EXEC sp_upd_disk 21, 'Eeyore', '2/2/2011', NULL, 1, 1;
+GO
+
+DROP PROCEDURE IF EXISTS sp_del_disk
+GO
+CREATE PROCEDURE sp_del_disk
+	@Disk_ID INT
+AS
+	BEGIN TRY
+		DELETE FROM [dbo].[Disk]
+			  WHERE Disk_ID = @Disk_ID
+	END TRY
+	BEGIN CATCH
+		PRINT 'An error occured.';
+		PRINT 'Message:' + CONVERT(VARCHAR(200), ERROR_MESSAGE());
+	END CATCH
+GO
+
+GRANT EXECUTE ON sp_del_disk TO diskUserkl;
+EXEC sp_del_disk 21;
+EXEC sp_del_disk 4;
+GO
